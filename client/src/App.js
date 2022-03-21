@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import NavBar from './components/NavBar';
 import axios from 'axios';
+import cookie from 'cookie';
 
 const App = () => {
   const [loginInfo, setLoginInfo] = useState({
@@ -39,7 +40,9 @@ const App = () => {
     })
       .then((res) => {
         console.log(res.data);
-        document.cookie = `token=${res.data.token}`;
+        document.cookie = `token=${
+          res.data.token
+        }; expires=${new Date().setHours(new Date().getHours() + 1)}`;
         setIsLoggedIn(true);
       })
       .catch((err) => {
@@ -48,7 +51,8 @@ const App = () => {
       });
   };
 
-  console.log(document.cookie);
+  const cookies = cookie.parse(document.cookie);
+  console.log(cookies.token);
 
   return (
     <div>
