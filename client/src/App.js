@@ -9,6 +9,7 @@ const App = () => {
     password: '',
   });
   const [isLoggedIn, setIsLoggedIn] = useState(global.user ? true : false);
+  const [userData, setUserData] = useState();
 
   const handleChange = ({ target }) => {
     const { value, name } = target;
@@ -51,13 +52,49 @@ const App = () => {
       });
   };
 
+  const getData = async (token) => {
+    try {
+      const res = await axios.get('http://localhost:8080/user', {
+        headers: { 'x-access-token': token },
+      });
+      const data = await res.data;
+      setUserData(data.user);
+    } catch (err) {
+      console.log(err.response);
+    }
+  };
+
   const cookies = cookie.parse(document.cookie);
-  console.log(cookies.token);
+  // console.log(cookies.token);
 
   return (
     <div>
-      {isLoggedIn ? (
-        <h1>Welcome You're logged in.</h1>
+      {isLoggedIn || cookies.token ? (
+        <>
+          <h1>Welcome You're logged in.</h1>
+          <button onClick={() => getData(cookies.token)}>Get Data</button>
+          <br />
+          {userData ? (
+            <>
+              <small>
+                Created On: {new Date(userData.createdAt).toLocaleDateString()}
+              </small>
+              <br />
+              <small>Email: {userData.email}</small>
+              <br />
+              <small>User Id: {userData._id}</small>
+            </>
+          ) : null}
+          <br />
+          <button
+            onClick={() => {
+              document.cookie = 'token=; Max-Age=0';
+              document.location.reload();
+            }}
+          >
+            Logout
+          </button>
+        </>
       ) : (
         <form onSubmit={handleLogin}>
           <h2>Login</h2>

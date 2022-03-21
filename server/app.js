@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./models/user');
 const req = require('express/lib/request');
 const bcrypt = require('bcryptjs');
+const auth = require('./middleware/auth');
 
 const app = express();
 const port = process.env.port || 8080;
@@ -102,6 +103,12 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.log(error);
   }
+});
+
+app.get('/user', auth, async (req, res) => {
+  const userData = await User.findOne(req.user);
+
+  res.status(200).json({ success: true, user: userData });
 });
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));
