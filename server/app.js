@@ -14,7 +14,11 @@ const port = process.env.port || 8080;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+  })
+);
 
 app.get('/', (req, res) => {
   return res.status(200).send('Working...');
@@ -60,7 +64,41 @@ app.post('/register', async (req, res) => {
 
     user.token = token;
 
-    res.status(201).json({ success: true, user: user });
+    res.status(201).json({ success: true, user: user, token: user.token });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!(email && password)) {
+      return res
+        .status(400)
+        .json({ succss: false, error: 'email and password are required...' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const token = jwt.sign(
+        { userId: user._id, email },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '2h',
+        }
+      );
+
+      user.token = token;
+
+      return res
+        .status(200)
+        .json({ success: true, user: user, token: user.token });
+    }
+
+    res.status(400).send('Invalid Creditionals');
   } catch (error) {
     console.log(error);
   }

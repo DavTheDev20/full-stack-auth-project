@@ -5,6 +5,7 @@
   "author": "Davin Reid",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "concurrently": "^7.0.0",
     "cors": "^2.8.5",
@@ -15,7 +16,9 @@
     "morgan": "^1.10.0"
   },
   "scripts": {
-    "server": "cd server && nodemon app.js"
+    "server": "cd server && nodemon app.js",
+    "client": "cd client && yarn start",
+    "dev": "concurrently -n 'server,client' -c 'red,blue' \"yarn server\" \"yarn client\""
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
